@@ -5,10 +5,17 @@ pub fn build(b: *std.build.Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
+    // todo x: generate static library: *.a
     const lib = b.addStaticLibrary("ffi-core-zig", "src/main.zig");
     lib.setBuildMode(mode);
     lib.install();
 
+    // todo x: generate shared library: *.dylib
+    const share_lib = b.addSharedLibrary("ffi-core-zig", "src/main.zig", b.version(1, 0, 0));
+    share_lib.setBuildMode(mode);
+    share_lib.install();
+
+    // todo x: unit test:
     const main_tests = b.addTest("src/main.zig");
     main_tests.setBuildMode(mode);
 
