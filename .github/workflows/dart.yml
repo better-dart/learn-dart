@@ -1,0 +1,54 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Dart
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: build flutter web app
+    env:
+      my_secret: ${{secrets.commit_secret}}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '2.5.3'
+      - run: flutter pub get
+      - run: pub global activate get_cli
+      - run: get generate locales assets/locales on data/locales
+
+      #
+      # release:
+      #
+      - run: flutter build web --release --web-renderer html --base-href /toolbox/   # fix baseHref
+      - run: |
+          cd build/web
+          git init
+          git config --global user.email hhglory@outlook.com
+          git config --global user.name hhglory
+          git status
+          git remote add origin https://${{secrets.commit_secret}}@github.com/hhstore/toolbox.git
+          git checkout -b gh-pages
+          git add --all
+          git commit -m "auto update by action"
+          git push origin gh-pages -f
+
+
+#      - run: git checkout gh-pages
+#      - run: \cp -rf build/web/ docs/
+#      - run: git add docs/
+#      - run: git mv -f docs/*.* .
+#      - run: git commit "auto update - github action"
+#      - run: git push origin gh-pages:gh-pages
+

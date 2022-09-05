@@ -1,0 +1,67 @@
+##############################################################################
+#
+#
+# dart linter:
+#   - 官方: https://github.com/flutter/packages/tree/master/packages/flutter_lints
+#   - https://github.com/dart-lang/linter
+#
+# dart lint rules:
+#   - https://dart-lang.github.io/linter/lints/options/options.html
+#   - 所有规则列表
+#   - https://dart.dev/guides/language/analysis-options#the-analysis-options-file
+#
+# flutter usage:
+#   - https://github.com/flutter/flutter/blob/master/analysis_options.yaml
+#   - https://github.com/flutter/flutter/blob/master/packages/flutter/lib/analysis_options_user.yaml
+#   - https://github.com/jonataslaw/getx/blob/master/analysis_options.yaml
+#
+#
+##############################################################################
+
+#include: package:lints/recommended.yaml
+include: package:flutter_lints/flutter.yaml
+
+##############################################################################
+
+analyzer:
+  exclude:
+    - build/**
+    - ios/**
+    - android/**
+    - tmp/**
+    - docs/**
+    - assets/**
+    - .fvm/**
+    - .dart_tool/**
+
+
+  #  strong-mode: # 严格模式过于繁琐, 会导致完全没法写代码
+  #    implicit-casts: false
+  #    implicit-dynamic: false
+
+  errors:
+    invalid_assignment: warning
+    missing_return: error
+    dead_code: info
+    camel_case_types: warning
+    avoid_unused_constructor_parameters: warning
+
+
+##############################################################################
+
+#
+# 覆盖 include 的配置项目: IDE 会自动分析
+#
+linter:
+  rules:
+    # 注意写法: 赋值方式, 不可和 - 混用
+    avoid_unused_constructor_parameters: true          # 激活
+    avoid_print: false                                 # 忽略
+    unnecessary_this: false                            # 忽略
+    unnecessary_overrides: false                       # 忽略
+    unnecessary_brace_in_string_interps: false         # 忽略
+    unnecessary_string_interpolations: false           # 忽略
+    prefer_const_constructors: false                   # 忽略
+    prefer_const_constructors_in_immutables: false     # 忽略
+    prefer_const_literals_to_create_immutables: false  # 忽略
+    use_key_in_widget_constructors: false              # 忽略

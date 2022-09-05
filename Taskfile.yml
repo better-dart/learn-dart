@@ -1,0 +1,103 @@
+version: '3'
+
+################################################################################################
+#
+# local dev:
+#   - run:
+#   - clean:
+#
+################################################################################################
+
+
+#
+# sub namespace: https://taskfile.dev/#/usage?id=including-other-taskfiles
+#
+includes:
+  app:
+    taskfile: ./packages/app/Taskfile.yml
+    dir: ./packages/app/
+    optional: true
+
+
+#
+# global vars: https://taskfile.dev/#/usage?id=variables
+#
+vars:
+  VAR1: "some-var"
+
+# global env:
+env:
+  ENV1: testing
+
+# env file:
+dotenv:
+  - .env
+
+################################################################################################
+
+
+# task groups:
+tasks:
+  default:
+    cmds:
+      - task: init
+      - task: run
+
+  install:
+    cmds:
+      - brew tap leoafarias/fvm   # flutter version management
+      - brew install fvm
+      #      - fvm install 2.2.3 # install flutter sdk
+      - fvm use 2.5.0  # install and use
+      - pub global activate fvm # update fvm
+
+  tool:
+    cmds:
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # install rust
+      - cargo install svgcleaner # fix svg file meta error
+
+  init:
+    cmds:
+      - cp .env.local .env
+      - task: app:init
+
+
+  new:
+    desc: "create flutter app"
+    cmds:
+      - echo "$(pwd) > ${FLUTTER_APP_ROOT} > ${FLUTTER_APP_NAME}"
+      - cd ${FLUTTER_APP_ROOT}; fvm flutter create ${FLUTTER_APP_NAME}
+
+  run:
+    cmds:
+      - task: app:run
+
+
+  #########################################################################
+
+  stash:
+    cmds:
+      - git stash
+
+  quick:
+    cmds:
+      - task: commit
+      - task: pull
+      - task: push
+
+  commit:
+    cmds:
+      - git add lib/
+      - git commit -m "update"
+
+  push:
+    cmds:
+      - git push origin main --tags
+      - repo_url=`git remote -v | grep push | awk -F ":" '{print $2}' | awk -F ".git" '{print "https://github.com/"$1}'`; open $repo_url
+
+  pull:
+    cmds:
+      - git config pull.rebase false
+      - git pull
+
+
