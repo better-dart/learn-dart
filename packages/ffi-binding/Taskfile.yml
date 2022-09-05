@@ -1,0 +1,51 @@
+version: "3"
+
+################################################################################################
+#
+# local dev:
+#   - run:
+#   - clean:
+#
+################################################################################################
+
+#
+# global vars: https://taskfile.dev/#/usage?id=variables
+#
+vars:
+  VAR1: "some-var"
+
+# global env:
+env:
+  ENV1: testing
+
+# env file:
+#dotenv:
+#  - .env
+
+################################################################################################
+
+# task groups:
+tasks:
+  default:
+    cmds:
+      - task: test
+
+  get:
+    cmds:
+      - flutter pub get
+
+  gen:
+    cmds:
+      - fvm dart run ffigen
+
+  run:
+    cmds:
+      - fvm dart run ./example/main.dart
+
+  test:
+    cmds:
+      - echo "test"
+
+  build:
+    cmds:
+      - echo "build"

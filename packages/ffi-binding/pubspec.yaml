@@ -1,27 +1,33 @@
 name: ffi_binding
 description: A new Flutter package project.
 version: 0.0.1
-homepage:
+homepage: no
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
+  sdk: ">=2.18.0 <3.0.0"
   flutter: ">=1.17.0"
+
+#############################################################################
 
 dependencies:
   flutter:
     sdk: flutter
 
+  ffi: ^2.0.1
+
 dev_dependencies:
+  ffigen: ^6.1.2
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+
+#############################################################################
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # To add assets to your package, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -32,7 +38,6 @@ flutter:
   #
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
-
   # To add custom fonts to your package, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a
   # "family" key with the font family name, and a "fonts" key with a
@@ -52,3 +57,14 @@ flutter:
   #
   # For details regarding fonts in packages, see
   # https://flutter.dev/custom-fonts/#from-packages
+
+#############################################################################
+
+ffigen:
+  name: NativeLibrary
+  description: Bindings to `ffi/headers/*.h`.
+  output: "lib/generated_bindings.dart" # todo x: 自定义生成结果路径
+  headers:
+    entry-points:
+      - "../ffi-core-zig/src/main.h" # todo x: 指定对应的 c 头文件
+

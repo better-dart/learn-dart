@@ -17,6 +17,11 @@ includes:
     dir: ./packages/ffi-app/
     optional: true
 
+  binding:
+    taskfile: ./packages/ffi-binding/Taskfile.yml
+    dir: ./packages/ffi-binding/
+    optional: true
+
   zig:
     taskfile: ./packages/ffi-core-zig/Taskfile.yml
     dir: ./packages/ffi-core-zig/

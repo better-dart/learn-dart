@@ -1,0 +1,384 @@
+version: "3"
+
+################################################################################################
+#
+# local dev:
+#   - run:
+#   - clean:
+#
+################################################################################################
+
+#
+# global vars: https://taskfile.dev/#/usage?id=variables
+#
+vars:
+  VAR1: "some-var"
+
+# global env:
+env:
+  ENV1: testing
+
+# env file:
+#dotenv:
+#  - .env
+
+################################################################################################
+
+# task groups:
+tasks:
+  default:
+    cmds:
+      - task: init
+      - task: run
+
+  install:
+    cmds:
+      - brew tap leoafarias/fvm # flutter version management
+      - brew install fvm
+      #      - fvm install 2.2.3 # install flutter sdk
+      - fvm use 2.5.0 # install and use
+      - pub global activate fvm # update fvm
+
+  tool:
+    cmds:
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # install rust
+      - cargo install svgcleaner # fix svg file meta error
+
+  init:first:
+    cmds:
+      - touch .env.local
+      - touch .env.test
+      - cp .env.test test/.env
+      - task: get
+      - task: deactivate # fix get_cli error
+      - task: activate
+      - task: pub:add
+      - task: get:init
+      - task: gen
+
+  init:
+    cmds:
+      - cp .env.local .env
+      - cp .env.test test/.env
+      - task: get:locales:init
+      - task: gen
+    ignore_error: true
+
+  gen:
+    cmds:
+      - task: get:locales:gen # i18n
+      - fvm flutter packages pub run build_runner build
+
+  #########################################################################
+
+  outdated:
+    - task: do
+      vars: { CMD: "pub outdated" }
+
+  get:
+    cmds:
+      - task: do
+        vars: { CMD: "pub get" }
+
+  fix:run:
+    cmds:
+      - pod repo update
+
+  run:
+    cmds:
+      - task: do
+        vars: { CMD: "run --debug" }
+
+  run:macos:
+    cmds:
+      - task: do
+        vars: { CMD: "run --debug -d macos" }
+
+  run:ios:
+    cmds:
+      - task: do
+        vars: { CMD: "run --debug -d ${FLUTTER_DEVICE_ID_IOS}" }
+
+  run:android:
+    cmds:
+      - task: do
+        vars: { CMD: "run --debug -d ${FLUTTER_DEVICE_ID_ANDROID}" }
+
+  run:web:
+    cmds:
+      - task: do
+        vars: { CMD: "run --debug -d chrome --web-renderer html " } # load speed
+
+  deploy:
+    cmds:
+      - task: clean
+      - task: release:web
+      - open http://localhost:8080
+      - cd ${FLUTTER_APP_ROOT}/${FLUTTER_APP_NAME}; open build/web/
+      - echo "$(pwd)"
+      #      - cd ${FLUTTER_APP_ROOT}/${FLUTTER_APP_NAME}; ngrok http file:///$(pwd)/build/web
+      - cd ${FLUTTER_APP_ROOT}/${FLUTTER_APP_NAME}; dhttpd --port 8080 --path build/web/
+
+  clean:
+    cmds:
+      - task: do
+        vars: { CMD: "clean" }
+
+  #
+  # 每次升级 flutter 版本, 要执行 clean + run, 否则报奇怪错误.
+  #
+  clean:run:
+    cmds:
+      - task: clean
+      - task: run
+
+  rel:
+    cmds:
+      - flutter_distributor release --name dev
+
+  #
+  # ref: https://distributor.leanflutter.org/zh/docs/getting-started
+  #
+  rel:macos:
+    cmds:
+      #      - flutter_distributor release --name desktop
+      - flutter_distributor package --platform macos --targets dmg
+      - open build/dist/
+
+  pod:update:
+    cmds:
+      - cd macos/; rm Podfile.lock; pod install --repo-update
+
+  release:
+    cmds:
+      - task: release:ios
+      - task: release:android
+      - task: release:web
+
+  release:web:
+    cmds:
+      - task: do
+        vars: {
+            CMD: "build web --release --web-renderer html --base-href /toolbox/",
+          } # 不使用 canvaskit.wasm, 优化加载速度 // fix baseHref
+      - cd ${FLUTTER_APP_ROOT}/${FLUTTER_APP_NAME}; open build/web/
+
+  # fix chrome:
+  release:chrome:
+    cmds:
+      # - task: clean
+      - task: do
+        vars: { CMD: "build web --release --web-renderer html --csp" } # 不使用 canvaskit.wasm, 优化加载速度 // fix baseHref
+      - cd ${FLUTTER_APP_ROOT}/${FLUTTER_APP_NAME}; open build/web/
+
+  release:ios:
+    cmds:
+      - task: do
+        vars: { CMD: "build ios" }
+      - open build/ios/iphoneos
+      - task: open:xcode
+
+  release:android:
+    cmds:
+      - task: do
+        vars: { CMD: "build apk" }
+      - echo 'check build/app/outputs/flutter-apk/ folder'
+      - cp build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/wallet-v`date +%Y-%m-%d`-release.apk
+      - open build/app/outputs/flutter-apk/
+  #      - fvm flutter build apk --target-platform android-arm,android-arm64,android-x64 --split-per-abi  # 分 ARM 架构打包, 包更小
+
+  do:
+    cmds:
+      - fvm flutter {{.CMD}} # DO CMD
+
+  open:xcode:
+    cmds:
+      - open ios/Runner.xcworkspace # not Runner.xcodeproj
+      - open https://appstoreconnect.apple.com/apps/1542311370/testflight/ios
+      - open https://testflight.apple.com/join/Vain6SGh
+
+  #########################################################################
+
+  pub:add:
+    cmds:
+      - fvm flutter pub add --dev build_runner
+      - fvm flutter pub add --dev get_cli
+    ignore_error: true
+
+  pub:add:lints:
+    cmds:
+      - fvm flutter pub add --dev lints
+      - fvm flutter pub add --dev flutter_lints
+
+  activate: # activate tools
+    cmds:
+      - pub global activate get_cli
+      - pub global activate dhttpd
+    ignore_error: true
+
+  deactivate:
+    cmds:
+      - pub global deactivate get_cli
+    ignore_error: true
+
+  lints:
+    cmds:
+      - fvm flutter analyze
+
+  #########################################################################
+
+  version-check:
+    cmds:
+      - fvm releases
+      - fvm list
+
+  mkdir:
+    desc: "create app folder"
+    cmds:
+      - mkdir -p {{.FOLDER}}
+
+  # 会自动生成 ios/ Android/ 下的 icon 图标, 需要删掉之前的 app, 重新 build 安装
+  gen-app-icon:
+    desc: "generate installed app icon"
+    cmds:
+      - fvm flutter pub get
+      - fvm flutter pub run flutter_launcher_icons:main
+
+  fix-build:
+    cmds:
+      - rm -rf ios
+      - rm -rf android
+      - fvm flutter create --project-name=wallet --org=com.bytefire .
+
+  # fix svg file:
+  #   - https://github.com/RazrFalcon/svgcleaner
+  fix-svg:
+    cmds:
+      - svgcleaner --allow-bigger-file assets/image/coin/uni.svg tmp/uni.svg
+      - svgcleaner --allow-bigger-file assets/image/coin/usdt.svg tmp/usdt.svg
+      - svgcleaner --allow-bigger-file assets/image/coin/dai.svg tmp/dai.svg
+      - svgcleaner --allow-bigger-file assets/image/coin/busd.svg tmp/busd.svg
+
+  #########################################################################
+
+  # https://flutterchina.club/android-release/
+  gen-android-sign-key:
+    cmds:
+      - keytool -genkey -v -keystore ~/key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias key
+
+  #########################################################################
+
+  # 代码格式化:
+  get:code:fmt:
+    cmds:
+      - get sort
+
+  get:app:new:
+    cmds:
+      - get create project:my_app
+
+  # 初始化 app 目录: 使用 flutter create demo 创建后, 再改造成 GetX 结构
+  get:init:
+    cmds:
+      - get init
+      - task: get:locales:init
+      - task: get:locales:gen
+
+  get:locales:init:
+    cmds:
+      - task: mkdir
+        vars: { FOLDER: "assets/images/icons" }
+      - task: mkdir
+        vars: { FOLDER: "assets/locales" }
+      - echo "{\"appName\":\"示例\"}" > assets/locales/zh_CN.json
+      - echo "{\"appName\":\"demo\"}" > assets/locales/en_US.json
+      - task: mkdir
+        vars: { FOLDER: "lib/app/data/locales" }
+      - touch lib/app/data/locales/.gitkeep
+
+  get:locales:gen:
+    desc: "generate multi language(i18n)"
+    cmds:
+      - get generate locales assets/locales on data/locales
+
+  #
+  # get cli new:
+  #
+
+  new:pages:
+    cmds:
+      - get create page:splash
+      - get create page:about
+      - get create page:settings
+      - get create page:me
+      - get create page:feedback
+      - get create page:debug
+
+  new:page:
+    cmds:
+      - get create page:$PAGE_NAME # set from .env(check .env.local)
+
+  new:page:sub:
+    cmds:
+      - get create page:$PAGE_NAME on $PAGE_PATH
+
+  new:controller:
+    cmds:
+      - get create controller:$VIEW_NAME on $VIEW_PATH
+
+  new:view:
+    cmds:
+      - task: new:view:only
+      - task: new:controller
+
+  new:view:only:
+    cmds:
+      - get create view:$VIEW_NAME on $VIEW_PATH
+
+  new:provider:
+    cmds:
+      - get create provider:$PROVIDER_NAME on $PROVIDER_PATH # 默认 on data/
+
+  new:model:
+    cmds:
+      #- get generate model with assets/models/wallet_address_asset_entity.json --skipProvider
+      - get generate model with $MODEL_JSON_FILE_PATH --skipProvider
+
+  #########################################################################
+
+  stash:
+    cmds:
+      - git stash
+
+  quick:
+    cmds:
+      - task: commit
+      - task: pull
+      - task: push
+
+  commit:
+    cmds:
+      - git add lib/
+      - git commit -m "update"
+
+  push:
+    cmds:
+      - git push origin main --tags
+      - repo_url=`git remote -v | grep push | awk -F ":" '{print $2}' | awk -F ".git" '{print "https://github.com/"$1}'`; open $repo_url
+
+  pull:
+    cmds:
+      - git config pull.rebase false
+      - git pull
+
+  #########################################################################
+
+  # test data:
+  mock-wallet:
+    cmds:
+      # 开源:
+      #   - https://github.com/iancoleman/bip39
+      #   - https://iancoleman.io/
+      #   - 参考: https://github.com/ebellocchia/bip_utils
+      #   - 私钥生成
+      - open https://iancoleman.io/bip39/#english

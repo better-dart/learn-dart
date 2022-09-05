@@ -1,5 +1,7 @@
 library ffi_binding;
 
+export "generated_bindings.dart";
+
 /// A Calculator.
 class Calculator {
   /// Returns [value] plus 1.
