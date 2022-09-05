@@ -62,11 +62,32 @@ tasks:
       - task: app:init
 
 
+
+  new:app:
+    cmds:
+      - task: new
+
   new:
     desc: "create flutter app"
     cmds:
-      - echo "$(pwd) > ${FLUTTER_APP_ROOT} > ${FLUTTER_APP_NAME}"
-      - cd ${FLUTTER_APP_ROOT}; fvm flutter create ${FLUTTER_APP_NAME}
+      - echo "$(pwd) | ${FLUTTER_APP_ROOT} , ${FLUTTER_APP_NAME}, ${FLUTTER_APP_ORG}"
+      - |
+        cd ${FLUTTER_APP_ROOT};
+        fvm flutter create ${FLUTTER_APP_NAME} \
+          --project-name=${FLUTTER_PROJECT_NAME} \
+          --org=${FLUTTER_APP_ORG}
+
+  new:lib:
+    desc: "create flutter lib"
+    cmds:
+      - echo "$(pwd) | ${FLUTTER_APP_ROOT} , ${FLUTTER_APP_NAME}, ${FLUTTER_APP_ORG}"
+      - |
+        cd ${FLUTTER_APP_ROOT};
+        fvm flutter create ${FLUTTER_APP_NAME} \
+          --project-name=${FLUTTER_PROJECT_NAME} \
+          --org=${FLUTTER_APP_ORG} \
+          --template=package
+
 
   run:
     cmds:
