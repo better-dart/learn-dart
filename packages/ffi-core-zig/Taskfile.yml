@@ -20,9 +20,17 @@ tasks:
       - cp *.h src/
       - rm *.h;
 
+  # https://ziglang.org/download/0.8.0/release-notes.html#Support-Table
   build:
     cmds:
       - zig build
+      - zig build -Dtarget=x86_64-linux
+      - zig build -Dtarget=x86_64-macos
+      - zig build -Dtarget=x86_64-windows
+      - zig build -Dtarget=aarch64-macos
+      - ls -al  zig-out/lib/
+      - ls -al .
+    ignore_error: true
 
   run:
     cmds:
@@ -51,6 +59,7 @@ tasks:
   clean:
     cmds:
       - rm -rf zig-cache/;
+      - rm -rf zig-out/;
       - rm *.a;
       - rm *.o;
       - rm *.dylib;
