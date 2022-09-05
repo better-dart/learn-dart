@@ -29,7 +29,7 @@ tasks:
       - zig build -Dtarget=x86_64-windows
       - zig build -Dtarget=aarch64-macos
       - ls -al  zig-out/lib/
-      - ls -al .
+      # - ls -al .
     ignore_error: true
 
   run:
