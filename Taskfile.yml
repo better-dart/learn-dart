@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 ################################################################################################
 #
@@ -8,16 +8,19 @@ version: '3'
 #
 ################################################################################################
 
-
 #
 # sub namespace: https://taskfile.dev/#/usage?id=including-other-taskfiles
 #
 includes:
   app:
-    taskfile: ./packages/app/Taskfile.yml
-    dir: ./packages/app/
+    taskfile: ./packages/ffi-app/Taskfile.yml
+    dir: ./packages/ffi-app/
     optional: true
 
+  zig:
+    taskfile: ./packages/ffi-core-zig/Taskfile.yml
+    dir: ./packages/ffi-core-zig/
+    optional: true
 
 #
 # global vars: https://taskfile.dev/#/usage?id=variables
@@ -35,7 +38,6 @@ dotenv:
 
 ################################################################################################
 
-
 # task groups:
 tasks:
   default:
@@ -45,23 +47,21 @@ tasks:
 
   install:
     cmds:
-      - brew tap leoafarias/fvm   # flutter version management
+      - brew tap leoafarias/fvm # flutter version management
       - brew install fvm
       #      - fvm install 2.2.3 # install flutter sdk
-      - fvm use 2.5.0  # install and use
+      - fvm use 2.5.0 # install and use
       - pub global activate fvm # update fvm
 
   tool:
     cmds:
-      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh  # install rust
+      - curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh # install rust
       - cargo install svgcleaner # fix svg file meta error
 
   init:
     cmds:
       - cp .env.local .env
       - task: app:init
-
-
 
   new:app:
     cmds:
@@ -88,11 +88,14 @@ tasks:
           --org=${FLUTTER_APP_ORG} \
           --template=package
 
+  new:zig:lib:
+    cmds:
+      - mkdir ${NEW_PACKAGE_NAME}; cd ${NEW_PACKAGE_NAME}; zig init-lib
+    dir: packages/
 
   run:
     cmds:
       - task: app:run
-
 
   #########################################################################
 
@@ -120,5 +123,3 @@ tasks:
     cmds:
       - git config pull.rebase false
       - git pull
-
-

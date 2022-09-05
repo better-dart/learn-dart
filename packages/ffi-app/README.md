@@ -4,13 +4,18 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+> FFI:
 
-A few resources to get you started if this is your first Flutter project:
+- https://dart.dev/guides/libraries/c-interop
+- https://pub.dev/packages/ffigen
+  - https://github.com/dart-lang/ffigen
+- https://pub.dev/packages/flutter_rust_bridge
+  - https://github.com/fzyzcjy/flutter_rust_bridge
+- https://github.com/hhstore/blog/issues/242
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+> FFI + rust:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- https://github.com/sunshine-protocol/dart-bindgen
+- https://github.com/shekohex/flutterust
+- https://github.com/brickpop/flutter-rust-ffi
+- https://github.com/Hentioe/mikack

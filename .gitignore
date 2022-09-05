@@ -71,3 +71,14 @@ tmp/
 **/*.gs
 *.hive
 *.lock
+
+
+# for zig build:
+zig-cache/
+zig-out/
+.zigmod/
+
+# c build binaries:
+*.a
+*.o
+*.dylib

@@ -1,0 +1,57 @@
+version: "3"
+
+tasks:
+  init:
+    cmds:
+      - echo "os init"
+
+  # with zig v0.6.0, support `-femit-h` option
+  docker:build:
+    cmds:
+      # - docker pull euantorano/zig:0.6.0
+      - docker run --platform linux/x86_64 --rm -v $PWD:/app euantorano/zig:0.6.0 build-lib src/main.zig -femit-h
+      - cp *.h src/
+      - rm *.h;
+
+  # gen c header, zig v0.9+ (直接生成的头文件, 包含大量冗余代码, 且编译报错, 不 work)
+  gen:
+    cmds:
+      - zig build-lib -fno-stage1 -femit-h src/mathtest.zig
+      - cp *.h src/
+      - rm *.h;
+
+  build:
+    cmds:
+      - zig build
+
+  run:
+    cmds:
+      - zig build run # --verbose-cc  # 打印编译细节
+
+  test:
+    cmds:
+      - zig build test
+
+  mod:init:
+    cmds:
+      - zigmod init
+
+  # build:lib:
+  #   cmds:
+  #     - zig build-lib  src/mathtest.zig -femit-h -femit-h
+
+  # build:lib:shared:
+  #   cmds:
+  #     - zig build-lib  src/mathtest.zig -dynamic -femit-h
+
+  # build:exe:
+  #   cmds:
+  #     - zig build-exe --library libzigmath.a src/main.c
+
+  clean:
+    cmds:
+      - rm -rf zig-cache/;
+      - rm *.a;
+      - rm *.o;
+      - rm *.dylib;
+    ignore_error: true
