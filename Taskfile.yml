@@ -93,6 +93,19 @@ tasks:
           --org=${FLUTTER_APP_ORG} \
           --template=package
 
+  # ffi binding + plugin
+  new:plugin:
+    desc: "create flutter plugin"
+    cmds:
+      - echo "$(pwd) | ${FLUTTER_APP_ROOT} , ${FLUTTER_APP_NAME}, ${FLUTTER_APP_ORG}"
+      - |
+        cd ${FLUTTER_APP_ROOT};
+        fvm flutter create ${FLUTTER_APP_NAME} \
+          --project-name=${FLUTTER_PROJECT_NAME} \
+          --org=${FLUTTER_APP_ORG} \
+          --template=plugin \
+          --platforms=android,ios,linux,macos,windows
+
   new:zig:lib:
     cmds:
       - mkdir ${NEW_PACKAGE_NAME}; cd ${NEW_PACKAGE_NAME}; zig init-lib
