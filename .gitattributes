@@ -17,6 +17,12 @@
 # The above will handle all files NOT found below
 # These files are text and should be normalized (Convert crlf => lf)
 
+# fix:
+*.h -text diff=dart
+*.c -text diff=dart
+*.cc -text diff=dart
+*.cpp -text diff=dart
+
 # Golang sources
 *.go -text diff=golang
 
